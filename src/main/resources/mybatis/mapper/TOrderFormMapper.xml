@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tianya.mapper.TOrderFormMapper">
+
+    <resultMap id="BaseResultMap" type="com.tianya.eneity.TOrderForm">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="order_number" property="orderNumber" jdbcType="VARCHAR" />
+        <result column="count" property="count" jdbcType="VARCHAR" />
+        <result column="status" property="status" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <resultMap id="ShoppingCartDisplay" extends="BaseResultMap" type="com.tianya.eneity.TOrderForm">
+        <association property="user" column="user_id" select="com.tianya.mapper.TUserMapper.selectUserByPrimaryKey"/>
+        <association property="book" column="book_id" select="com.tianya.mapper.TBookMapper.selectBookByPrimaryKey"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,order_number,count,status,create_time,book_id,user_id
+    </sql>
+
+    <select id="selectOrderFormByUserAndBookId" resultMap="ShoppingCartDisplay"
+        parameterType="com.tianya.eneity.ShoppingCartParam">
+        select
+        <include refid="Base_Column_List"/>
+        from t_order_form
+        where user_id=#{userId} and status=#{status}
+    </select>
+
+    <delete id="deleteOrderFormByPrimaryKey" parameterType="integer">
+        delete
+        from t_order_form where id=#{id}
+    </delete>
+
+    <update id="payAllOrder" parameterType="integer">
+        update t_order_form
+        set status=0
+        where user_id = #{id};
+    </update>
+
+    <insert id="insertOrderForm" parameterType="com.tianya.eneity.TOrderForm"
+            useGeneratedKeys="true" keyProperty="id">
+        insert into t_order_form
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="orderNumber != null">
+                order_number,
+            </if>
+            <if test="count != null">
+                count,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="book != null">
+                book_id,
+            </if>
+            <if test="user != null">
+                user_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="orderNumber != null">
+                #{orderNumber},
+            </if>
+            <if test="count != null">
+                #{count},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="book != null">
+                #{book.id},
+            </if>
+            <if test="user != null">
+                #{user.id},
+            </if>
+        </trim>
+    </insert>
+</mapper>
